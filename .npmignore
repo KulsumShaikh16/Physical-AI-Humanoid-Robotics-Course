@@ -1,0 +1,9 @@
+# Node.js common ignore patterns
+node_modules/
+dist/
+build/
+*.log
+.env*
+
+# Ignore Docusaurus project within this repo
+my-website/

@@ -1,0 +1,8 @@
+{
+    "label": "Humanoid Robotics",
+    "position": 5,
+    "link": {
+        "type": "generated-index",
+        "description": "Master humanoid robot control including bipedal locomotion, manipulation, and whole-body coordination."
+    }
+}

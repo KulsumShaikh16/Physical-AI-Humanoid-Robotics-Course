@@ -1,0 +1,81 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Translation API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/chapters/{chapterId}/translate/{languageCode}": {
+      "get": {
+        "summary": "Retrieves the translated content of a chapter",
+        "description": "If the translation does not exist, it is generated and returned.",
+        "parameters": [
+          {
+            "name": "chapterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "languageCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Translated chapter content retrieved or generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "chapter_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "language_code": {
+                      "type": "string"
+                    },
+                    "translated_content": {
+                      "type": "string"
+                    },
+                    "last_translated_date": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chapter not found or invalid language code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

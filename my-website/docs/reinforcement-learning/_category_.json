@@ -1,0 +1,8 @@
+{
+    "label": "Reinforcement Learning",
+    "position": 3,
+    "link": {
+        "type": "generated-index",
+        "description": "Master reinforcement learning algorithms to train intelligent agents for robotics tasks."
+    }
+}
