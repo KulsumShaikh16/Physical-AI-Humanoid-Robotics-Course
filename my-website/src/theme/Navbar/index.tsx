@@ -5,7 +5,7 @@ import type NavbarType from '@theme/Navbar';
 
 type Props = WrapperProps<typeof NavbarType>;
 
-export default function NavbarWrapper(props: Props): JSX.Element {
+export default function NavbarWrapper(props: Props): React.JSX.Element {
     return (
         <>
             <Navbar {...props} />
