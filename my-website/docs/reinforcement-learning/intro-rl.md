@@ -197,4 +197,4 @@ Create a visualization showing how the Q-values evolve during training.
 
 ## Next Steps
 
-Now that you understand basic RL, let's explore [deep reinforcement learning](/docs/reinforcement-learning/deep-rl) where we use neural networks instead of Q-tables!
+Now that you understand basic RL, let's explore [deep reinforcement learning](./deep-rl.md) where we use neural networks instead of Q-tables!

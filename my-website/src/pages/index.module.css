@@ -1,262 +1,128 @@
+/* Hero Section */
 .heroBanner {
-  padding: 6rem 0;
+  padding: 8rem 0 6rem;
   text-align: center;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #0891b2 100%);
-  color: white;
+  background: radial-gradient(circle at 50% 50%, rgba(31, 40, 51, 0) 0%, var(--ifm-background-color) 100%);
 }
 
-.heroTitle {
-  font-size: 3.5rem;
-  font-weight: 800;
-  margin-bottom: 1.5rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  animation: fadeInUp 0.8s ease-out;
-}
-
-.heroSubtitle {
-  font-size: 1.5rem;
-  font-weight: 300;
-  margin-bottom: 2.5rem;
-  opacity: 0.95;
-  animation: fadeInUp 1s ease-out;
+.heroBanner::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  background: var(--color-neon-cyan);
+  filter: blur(150px);
+  opacity: 0.15;
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .buttons {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  animation: fadeInUp 1.2s ease-out;
+  gap: 1.5rem;
+  margin-top: 3rem;
 }
 
-.getStartedButton {
-  background: white !important;
-  color: #1e40af !important;
-  border: none;
-  font-weight: 600;
-  padding: 0.75rem 2.5rem;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(30, 64, 175, 0.25);
-}
-
-.getStartedButton:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(30, 64, 175, 0.35);
-  background: #f8fafc !important;
-  color: #1e3a8a !important;
-}
-
-/* Features Section */
+/* Feature Grid */
 .features {
   padding: 6rem 0;
-  background: linear-gradient(to bottom, #f7fafc 0%, #edf2f7 100%);
+  position: relative;
 }
 
 .featuresTitle {
   text-align: center;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: #2d3748;
-}
-
-.featuresSubtitle {
-  text-align: center;
-  font-size: 1.2rem;
-  color: #718096;
   margin-bottom: 4rem;
+  font-size: 2.5rem;
+  color: var(--color-white);
+  font-family: var(--ifm-font-family-header);
 }
 
 .featureGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2.5rem;
-  margin-top: 3rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  padding: 0 1rem;
 }
 
-.feature {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-  transition: all 0.3s ease;
-  border: 1px solid #e2e8f0;
-}
-
-.feature:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-  border-color: #3b82f6;
-}
-
-.featureIcon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  display: inline-block;
-  animation: bounce 2s infinite;
-}
-
-.feature h3 {
-  font-size: 1.4rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #2d3748;
-}
-
-.feature p {
-  font-size: 1rem;
-  line-height: 1.7;
-  color: #4a5568;
-  margin: 0;
-}
-
-/* Maturity Levels Section */
+/* Maturity Levels */
 .maturitySection {
   padding: 6rem 0;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  color: white;
-}
-
-.maturityTitle {
-  text-align: center;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 4rem;
+  background: linear-gradient(180deg, var(--ifm-background-color) 0%, var(--color-dark-slate) 100%);
+  color: var(--color-white);
+  /* Ensure text is white */
 }
 
 .maturityLevels {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .maturityLevel {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
   border-radius: 12px;
-  border-left: 4px solid;
-  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.2s;
 }
 
 .maturityLevel:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: translateX(8px);
+  transform: translateX(10px);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .levelBadge {
-  display: inline-block;
+  background: var(--color-dark-slate);
+  color: var(--color-neon-cyan);
   padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-  color: white;
+  border-radius: 8px;
+  font-weight: 700;
+  min-width: 100px;
+  text-align: center;
+  border: 1px solid rgba(102, 252, 241, 0.2);
 }
 
 .maturityLevel h3 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
+  margin: 0;
+  color: var(--color-white);
 }
 
 .maturityLevel p {
-  font-size: 1rem;
-  line-height: 1.6;
-  opacity: 0.9;
   margin: 0;
+  opacity: 0.7;
+  color: var(--color-light-gray);
 }
 
-/* CTA Section */
+/* CTA */
 .ctaSection {
-  padding: 6rem 0;
-  background: linear-gradient(135deg, #1e40af 0%, #0891b2 100%);
+  padding: 8rem 0;
   text-align: center;
-  color: white;
+  background: radial-gradient(circle at 50% 50%, rgba(69, 162, 158, 0.1) 0%, transparent 70%);
 }
 
 .ctaTitle {
-  font-size: 2.8rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.ctaSubtitle {
-  font-size: 1.8rem;
-  font-weight: 300;
-  margin-bottom: 1.5rem;
-  opacity: 0.95;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--color-white);
 }
 
 .ctaDescription {
-  font-size: 1.2rem;
-  margin-bottom: 2.5rem;
-  opacity: 0.9;
-}
-
-.ctaButton {
-  background: white !important;
-  color: #1e40af !important;
-  border: none;
-  font-weight: 600;
-  padding: 1rem 3rem;
-  font-size: 1.2rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.ctaButton:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  color: #1e3a8a !important;
-}
-
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes bounce {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-/* Responsive */
-@media screen and (max-width: 768px) {
-  .heroTitle {
-    font-size: 2.5rem;
-  }
-
-  .heroSubtitle {
-    font-size: 1.2rem;
-  }
-
-  .featuresTitle,
-  .maturityTitle,
-  .ctaTitle {
-    font-size: 2rem;
-  }
-
-  .featureGrid,
-  .maturityLevels {
-    grid-template-columns: 1fr;
-  }
+  font-size: 1.25rem;
+  color: var(--color-light-gray);
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }

@@ -16,7 +16,7 @@ This guide will walk you through setting up the complete development environment
 - At least 50GB free disk space
 - Administrator (sudo) access
 
-> **Note**: While this project can run on lower-spec hardware, we recommend the specifications listed in the [main README](../../capstone/index.md#🛠️-technologies-used) for optimal performance.
+> **Note**: While this project can run on lower-spec hardware, we recommend the specifications listed in the [main README](../index.md#️-technologies-used) for optimal performance.
 
 ## Step 1: Update System
 
@@ -292,7 +292,7 @@ Once installation is complete:
 
 1. ✅ Verify all tests pass
 2. ✅ Launch a test simulation: `ros2 launch humanoid_bringup spawn_robot.launch.py`
-3. ✅ Proceed to [Architecture Overview](../01-introduction/architecture.md)
+3. ✅ Proceed to [Architecture Overview](./../01-introduction/architecture.md)
 
 ---
 
@@ -310,4 +310,4 @@ Once installation is complete:
 
 **Estimated total time**: ~2 hours
 
-Need help? Check the [FAQ](../07-conclusion/faq.md) or open an issue!
+Need help? Check the [FAQ](./../07-conclusion/faq.md) or open an issue!

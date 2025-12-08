@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
+import Heading from '@theme/Heading';
 import styles from './index.module.css';
 
 function HomepageHeader() {
@@ -10,17 +11,20 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero', styles.heroBanner)}>
       <div className="container">
-        <h1 className={styles.heroTitle}>
-          Physical AI & Humanoid Robotics
-        </h1>
-        <p className={styles.heroSubtitle}>
-          Building the Future of Embodied Intelligence – From Theory to Practice
-        </p>
+        <Heading as="h1" className="hero-title">
+          {siteConfig.title}
+        </Heading>
+        <p className="hero-subtitle">{siteConfig.tagline}</p>
         <div className={styles.buttons}>
           <Link
-            className={clsx('button button--primary button--lg', styles.getStartedButton)}
+            className="button button--primary button--lg"
             to="/docs/intro">
-            Start Learning
+            Start Reading
+          </Link>
+          <Link
+            className="button button--secondary button--lg glass-panel"
+            to="https://github.com/KulsumShaikh16/Physical-AI-Humanoid-Robotics-Course">
+            View on GitHub
           </Link>
         </div>
       </div>
@@ -51,12 +55,12 @@ function FeatureSection() {
       description: 'Master RL algorithms for training autonomous agents in simulated and real-world environments.',
     },
     {
-      title: 'Production-Ready Systems',
+      title: 'Production-Ready',
       icon: '⚡',
       description: 'Deploy scalable robotics systems with modern DevOps practices, containerization, and cloud infrastructure.',
     },
     {
-      title: 'Complete Learning Journey',
+      title: 'Full Stack Journey',
       icon: '📚',
       description: 'Comprehensive curriculum from programming fundamentals to deploying enterprise-grade robotic systems.',
     },
@@ -65,16 +69,16 @@ function FeatureSection() {
   return (
     <section className={styles.features}>
       <div className="container">
-        <h2 className={styles.featuresTitle}>What Makes This Book Different</h2>
-        <p className={styles.featuresSubtitle}>
-          A comprehensive, production-focused approach to co-learning Physical AI
-        </p>
+        <h2 className={styles.featuresTitle}>Why This Book?</h2>
         <div className={styles.featureGrid}>
           {features.map((feature, idx) => (
-            <div key={idx} className={styles.feature}>
-              <div className={styles.featureIcon}>{feature.icon}</div>
-              <h3>{feature.title}</h3>
-              <p>{feature.description}</p>
+            <div key={idx} className={clsx('card feature-card', styles.feature)}>
+              <div className="card__header">
+                <h3>{feature.icon} {feature.title}</h3>
+              </div>
+              <div className="card__body">
+                <p>{feature.description}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -85,50 +89,25 @@ function FeatureSection() {
 
 function MaturityLevels() {
   const levels = [
-    {
-      level: 'Level 1',
-      title: 'AI Awareness',
-      description: 'Understanding robotics fundamentals and AI concepts',
-      color: '#FF6B6B',
-    },
-    {
-      level: 'Level 2',
-      title: 'AI Adoption',
-      description: 'Using AI tools for robot development',
-      color: '#FFA500',
-    },
-    {
-      level: 'Level 3',
-      title: 'AI Integration',
-      description: 'Integrating AI into robotic systems',
-      color: '#FFD700',
-    },
-    {
-      level: 'Level 4',
-      title: 'AI-Native Robots',
-      description: 'Building robots with AI at their core',
-      color: '#4ECDC4',
-    },
-    {
-      level: 'Level 5',
-      title: 'AI-First Enterprise',
-      description: 'Deploying production robotics at scale',
-      color: '#45B7D1',
-    },
+    { level: 'Level 1', title: 'AI Awareness', desc: 'Foundations of Robotics & AI' },
+    { level: 'Level 2', title: 'AI Adoption', desc: 'Using AI Tools for Development' },
+    { level: 'Level 3', title: 'AI Integration', desc: 'Embedding AI in Robot Systems' },
+    { level: 'Level 4', title: 'AI-Native Robots', desc: 'Autonomous Agents at the Core' },
+    { level: 'Level 5', title: 'AI-First Enterprise', desc: 'Scale & Production Deployment' },
   ];
 
   return (
     <section className={styles.maturitySection}>
       <div className="container">
-        <h2 className={styles.maturityTitle}>Learning Maturity Levels</h2>
+        <h2 className={styles.featuresTitle}>Learning Maturity Path</h2>
         <div className={styles.maturityLevels}>
-          {levels.map((level, idx) => (
-            <div key={idx} className={styles.maturityLevel} style={{ borderLeftColor: level.color }}>
-              <div className={styles.levelBadge} style={{ backgroundColor: level.color }}>
-                {level.level}
+          {levels.map((lvl, idx) => (
+            <div key={idx} className={styles.maturityLevel}>
+              <div className={styles.levelBadge}>{lvl.level}</div>
+              <div>
+                <h3 style={{ margin: 0 }}>{lvl.title}</h3>
+                <p style={{ margin: 0, opacity: 0.7 }}>{lvl.desc}</p>
               </div>
-              <h3>{level.title}</h3>
-              <p>{level.description}</p>
             </div>
           ))}
         </div>
@@ -141,15 +120,14 @@ function CTASection() {
   return (
     <section className={styles.ctaSection}>
       <div className="container">
-        <h2 className={styles.ctaTitle}>From Theory to Practice</h2>
-        <h3 className={styles.ctaSubtitle}>From Learning to Building</h3>
+        <h2 className={styles.ctaTitle}>Ready to Build?</h2>
         <p className={styles.ctaDescription}>
-          Ready to build the future of Physical AI and Humanoid Robotics?
+          Join the revolution of Physical AI and start building intelligent humanoid robots today.
         </p>
         <Link
-          className={clsx('button button--primary button--lg', styles.ctaButton)}
+          className="button button--primary button--lg"
           to="/docs/intro">
-          Begin Your Journey
+          Start Learning Now
         </Link>
       </div>
     </section>
@@ -160,8 +138,8 @@ export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title={`${siteConfig.title}`}
-      description="Physical AI & Humanoid Robotics - Building the Future of Embodied Intelligence">
+      title={siteConfig.title}
+      description="Physical AI & Humanoid Robotics - Shaping the Future of Robotics: Bridging Intelligent Systems with the Physical World. Empowering the Next Generation of AI-Driven Humanoid Robots for Real-World Applications.">
       <HomepageHeader />
       <main>
         <FeatureSection />
@@ -171,3 +149,5 @@ export default function Home(): JSX.Element {
     </Layout>
   );
 }
+
+

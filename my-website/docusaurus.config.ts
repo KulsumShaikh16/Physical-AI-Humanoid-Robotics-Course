@@ -6,7 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'AI Native Development',
-  tagline: 'Building the Future of Embodied Intelligence',
+  tagline: 'Shaping the Future of Robotics: Bridging Intelligent Systems with the Physical World. Empowering the Next Generation of AI-Driven Humanoid Robots for Real-World Applications.',
 
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -60,7 +60,9 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
     colorMode: {
-      respectPrefersColorScheme: true,
+      defaultMode: 'dark',
+      disableSwitch: true,
+      respectPrefersColorScheme: false,
     },
     navbar: {
       title: 'AI Native Development',
@@ -82,43 +84,26 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'AI Native Development',
           items: [
             {
-              label: 'Book',
-              to: '/docs/intro',
+              html: `
+                Building the Future of Embodied Intelligence
+              `,
             },
           ],
         },
         {
-          title: 'Community',
+          title: 'Social',
           items: [
-            {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-            },
-            {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
-            },
-            {
-              label: 'X',
-              href: 'https://x.com/docusaurus',
-            },
-          ],
-        },
-        {
-          title: 'More',
-          items: [
-
             {
               label: 'GitHub',
-              href: 'https://github.com/KulsumShaikh16',
+              href: 'https://github.com/KulsumShaikh16/Physical-AI-Humanoid-Robotics-Course',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} AI Native Development. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} AI Native Development. Free Open Source.`,
     },
     prism: {
       theme: prismThemes.github,

@@ -321,4 +321,4 @@ Train a humanoid to walk backwards or sideways using reinforcement learning.
 
 ## Next Steps
 
-Ready to add intelligence? Learn about [computer vision for robotics](/docs/perception/computer-vision) to give your robot eyes!
+Ready to add intelligence? Learn about [computer vision for robotics](../perception/computer-vision.md) to give your robot eyes!
