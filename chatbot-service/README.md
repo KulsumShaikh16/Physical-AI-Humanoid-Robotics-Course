@@ -27,7 +27,7 @@ This directory contains the backend service for the RAG (Retrieval-Augmented Gen
     ```
 4.  **Start the backend service**:
     ```bash
-    uvicorn main:app --reload
+    python -m uvicorn main:app --reload
     ```
 5.  **Run the frontend**:
     Navigate to the `my-website` directory and run:
@@ -35,4 +35,11 @@ This directory contains the backend service for the RAG (Retrieval-Augmented Gen
     npm install
     npm start
     ```
+
+## Verification
+
+You can verify the backend is running correctly by running the test script:
+```bash
+python test_backend.py
+```
 The website will be available at `http://localhost:3000`. The chatbot will be available as a widget on the website.

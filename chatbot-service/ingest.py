@@ -29,7 +29,10 @@ def ingest():
     print(f"Connecting to Qdrant at {QDRANT_URL or 'local'}...")
     # Create Collection
     try:
-        qdrant.recreate_collection(
+        if qdrant.collection_exists(collection_name=COLLECTION_NAME):
+            qdrant.delete_collection(collection_name=COLLECTION_NAME)
+            
+        qdrant.create_collection(
             collection_name=COLLECTION_NAME,
             vectors_config=models.VectorParams(size=1024, distance=models.Distance.COSINE),
         )
