@@ -36,15 +36,15 @@ export default function Chatbot() {
 
         try {
             // TODO: Replace with your production backend URL
-            const response = await fetch('https://your-production-backend-url/chat', {
+            const response = await fetch('https://your-app-name.herokuapp.com/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ query: userMsg }),
+                },   
+                body: JSON.stringify({ query: userMsg }), 
             });
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error('Network response was not ok'); 
             }
 
             const data = await response.json();
