@@ -4,3 +4,4 @@ cohere
 qdrant-client
 python-dotenv
 pydantic
+gunicorn

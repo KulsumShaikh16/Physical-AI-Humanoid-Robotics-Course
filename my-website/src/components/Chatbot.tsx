@@ -35,8 +35,7 @@ export default function Chatbot() {
         setIsLoading(true);
 
         try {
-            // TODO: Replace with your production backend URL
-            const response = await fetch('https://your-app-name.herokuapp.com/chat', {
+            const response = await fetch('https://physical-ai-humanoid-robotics-course-oak1.onrender.com/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
