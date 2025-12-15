@@ -73,11 +73,7 @@ Physical AI and humanoid robotics represent one of the most exciting frontiers i
 
 Let's start building the future of embodied intelligence together!
 
-:::tip Ask the AI Assistant
 
-Have questions while you're learning? Use the **AI chatbot** in the bottom-right corner to ask questions about any content in this book. You can even select specific text and ask for clarification!
-
-:::
 
 ## Next Steps
 
