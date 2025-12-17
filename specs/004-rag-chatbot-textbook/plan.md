@@ -1,79 +1,113 @@
-# Implementation Plan: RAG Chatbot for Physical AI & Humanoid Robotics Textbook
+# Implementation Plan: Backend Development for RAG Chatbot
 
-**Branch**: `004-rag-chatbot-textbook` | **Date**: 2025-12-17 | **Spec**: [link]
-**Input**: Feature specification from `/specs/004-rag-chatbot-textbook/spec.md`
-
-**Note**: This template is filled in by the `/sp.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+**Branch**: `004-rag-chatbot-textbook` | **Date**: 2025-12-18 | **Spec**: `/specs/004-rag-chatbot-textbook/spec.md`
+**Input**: Backend Development Requirements for RAG Chatbot
 
 ## Summary
 
-This project will implement a Retrieval-Augmented Generation (RAG) chatbot that allows users to ask questions about a physical AI and humanoid robotics textbook. The system will use vector embeddings to semantically search textbook content and generate contextual responses using an LLM. The architecture will include components for content ingestion, vector storage, retrieval, and response generation.
+This project focuses on the backend development of a Retrieval-Augmented Generation (RAG) chatbot for the Physical AI & Humanoid Robotics Textbook. The system will integrate **Cohere API** for embeddings, **Qdrant** for vector search, and **Neon Postgres** for data storage. It aims to answer user queries by referencing only relevant textbook sections, ensuring high accuracy and low latency.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: LangChain, OpenAI API, Qdrant (vector database), FastAPI, Pydantic
-**Storage**: Qdrant vector database for embeddings, with JSON/text storage for original content
-**Testing**: pytest for unit and integration tests
-**Target Platform**: Linux server deployment, with web API interface
-**Project Type**: Backend API service with potential for web frontend
-**Performance Goals**: <5 seconds response time, handle up to 100 concurrent users
-**Constraints**: <5 second response time for queries, rate limiting to prevent API abuse
-**Scale/Scope**: Support for a complete textbook with multiple chapters and sections
+**Language**: Python 3.11+
+**Framework**: FastAPI
+**Key Components**:
+- **Embeddings**: Cohere API
+- **Vector Search**: Qdrant (Cloud Free Tier)
+- **Data Storage**: Neon Postgres (Serverless)
+- **LLM**: Gemini Pro (via existing env config)
+**Performance Goals**:
+- < 3 seconds response time
+- 100 concurrent users with no degradation
+**Architecture Style**: Serverless-ready backend API
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+[Gates passed - aligned with project goals]
+
+## research Approach
+
+- **Research-Concurrent Approach**: Implement features iteratively.
+- **Feedback Loop**: Collect feedback from initial testing phases and iterate on the system design and implementation.
+
+## Key Decisions
+
+### 1. Vector Search Engine: Qdrant
+- **Decision**: Selected Qdrant over Pinecone/Weaviate.
+- **Rationale**: Integration with free tier, strong performance, and scalability options suitable for the project's current phase.
+
+### 2. Database Architecture: Serverless (Neon Postgres)
+- **Decision**: Selected Neon Postgres over traditional relational databases.
+- **Rationale**: Scalability, cost-effectiveness for the current stage, and separation of compute/storage.
+
+### 3. User Data Management
+- **Decision**: Defer extensive user preference handling (e.g., language translation) to Phase 2.
+- **Current Scope**: Focus on robust English support.
+
+## Testing Strategy
+
+### Performance Testing
+- **Goal**: Handle 100 simultaneous queries.
+- **Method**: Load testing during development to simulate real user traffic and verify no degradation.
+
+### Accuracy Testing
+- **Goal**: Answers must be strictly based on selected textbook sections.
+- **Method**: Validation set of questions with known correct answers referenced from specific text chunks.
+
+### Efficiency Testing
+- **Goal**: Response time < 3 seconds.
+- **Method**: Monitor API latency under various load conditions.
+
+### Error Handling
+- **Strategy**: Proactive error logging and component-level testing.
+- **Scope**: Individual rigorous testing for Cohere API integration, Qdrant connectivity, and FastAPI error responses.
+
+## Technical Details & Architecture
+
+### Architecture Sketch
+- **API Layer**: FastAPI application managing routes for ingestion and chat.
+- **Embedding Layer**: Middleware integrating Cohere API to transform text/queries into vectors.
+- **Retrieval Layer**: Qdrant client matching query vectors to stored content chunks.
+- **Storage Layer**:
+    - **Neon Postgres**: Stores raw textbook chapters, sections, and metadata.
+    - **Qdrant**: Stores vector embeddings indexed for fast similarity search.
+
+### Section Structure
+- The backend will structure data to handle queries by referencing **only** relevant sections.
+- Content will be chunked by section/topic to ensure precise retrieval context.
+
+### Scalability Solutions
+- **Serverless Infrastructure**: Utilization of Neon (serverless PG) and Qdrant Cloud.
+- **Optimization**: API query optimization and efficient indexing strategies (HNSW in Qdrant) to manage latency at scale.
 
 ## Project Structure
 
-### Documentation (this feature)
-
+### Documentation
 ```text
-specs/[###-feature]/
-├── plan.md              # This file (/sp.plan command output)
-├── research.md          # Phase 0 output (/sp.plan command)
-├── data-model.md        # Phase 1 output (/sp.plan command)
-├── quickstart.md        # Phase 1 output (/sp.plan command)
-├── contracts/           # Phase 1 output (/sp.plan command)
-└── tasks.md             # Phase 2 output (/sp.tasks command - NOT created by /sp.plan)
+specs/004-rag-chatbot-textbook/
+├── plan.md              # This file
+├── research.md          # Research findings
+├── data-model.md        # Database schema
+└── tasks.md             # Implementation tasks
 ```
 
-### Source Code (repository root)
-
+### Source Code
 ```text
 src/
-├── models/
-│   ├── textbook_content.py
-│   ├── user_query.py
-│   ├── chatbot_response.py
-│   └── user_interaction_log.py
-├── services/
-│   ├── embedding_service.py
-│   ├── retrieval_service.py
-│   ├── generation_service.py
-│   └── logging_service.py
-├── api/
-│   ├── main.py
-│   ├── chatbot_router.py
-│   └── ingestion_router.py
-├── database/
-│   ├── vector_store.py
-│   └── qdrant_client.py
-└── utils/
-    ├── text_splitter.py
-    └── config.py
+├── api/                 # FastAPI routes
+├── core/                # Config, logging, exceptions
+├── db/                  # Qdrant & Neon clients
+├── models/              # Pydantic models (Request/Response/DB)
+└── services/
+    ├── ingestion.py     # Content processing & embedding (Cohere)
+    ├── retrieval.py     # Qdrant search logic
+    └── chat.py          # RAG orchestration
 ```
-
-**Structure Decision**: Single project with clear separation of concerns between models, services, API endpoints, and database interactions. This structure allows for maintainable code while supporting the core RAG functionality.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Dual Database (Qdrant + Postgres) | Vector search + Structured content management | Storing text in Qdrant only makes content management/updates harder; Storing vectors in PG (pgvector) less performance-optimized than specialized Qdrant for this scale. |

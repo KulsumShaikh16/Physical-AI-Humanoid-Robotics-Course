@@ -1,6 +1,10 @@
 import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -8,10 +12,14 @@ const config: Config = {
   title: 'AI Native Development',
   tagline: 'Shaping the Future of Robotics: Bridging Intelligent Systems with the Physical World. Empowering the Next Generation of AI-Driven Humanoid Robots for Real-World Applications.',
 
-
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
+  },
+
+  customFields: {
+    // Put your custom environment here
+    backendUrl: 'https://physical-ai-humanoid-robotics-course-oak1.onrender.com',
   },
 
   // Set the production url of your site here

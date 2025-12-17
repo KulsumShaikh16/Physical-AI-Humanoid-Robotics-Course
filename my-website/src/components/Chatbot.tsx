@@ -11,7 +11,10 @@ interface Message {
   sources?: any[];
 }
 
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+
 const Chatbot: React.FC = () => {
+  const { siteConfig } = useDocusaurusContext();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -51,24 +54,29 @@ const Chatbot: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/chatbot/query', {
+      // @ts-ignore
+      const backendUrl = siteConfig.customFields?.backendUrl as string | undefined;
+      const apiUrl = backendUrl ? `${backendUrl}/chatbot/query` : 'http://localhost:8000/chatbot/query';
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query: userMessage.text }),
+        body: JSON.stringify({ text: userMessage.text }), // Changed from query to text
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || `Server error: ${response.status}`);
+        const errorDetail = typeof errorData.detail === 'object' ? JSON.stringify(errorData.detail) : errorData.detail;
+        throw new Error(errorDetail || `Server error: ${response.status}`);
       }
 
       const data = await response.json();
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: data.response,
+        text: data.answer, // Changed from data.response to data.answer
         sender: 'bot',
         timestamp: new Date(),
         sources: data.sources
@@ -79,7 +87,7 @@ const Chatbot: React.FC = () => {
       console.error('Error querying chatbot:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+        text: `Error: ${error instanceof Error ? error.message : JSON.stringify(error)}`, // Improved error stringification
         sender: 'bot',
         timestamp: new Date(),
       };
