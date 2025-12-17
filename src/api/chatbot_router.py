@@ -1,167 +1,72 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
-from typing import List, Dict
-import logging
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException
+from src.models.domain import UserQuery, ChatbotResponse
+from src.services.embedding import EmbeddingService
+from src.services.retrieval import RetrievalService
+from src.services.generation import GenerationService
+from src.db.qdrant_client import get_qdrant_client
+from src.core.logging import logger
 
-from src.services.retrieval_service import RetrievalService
-from src.services.generation_service import GenerationService
-from src.services.logging_service import LoggingService
-from src.services.embedding_service import EmbeddingService
-from src.database.vector_store import VectorStore
-from src.models.user_query import UserQueryCreate
-from src.models.textbook_content import TextbookContentCreate
-from src.utils.config import Config
-
-# Create the API router
 router = APIRouter(prefix="/chatbot", tags=["chatbot"])
 
-# Initialize services
-retrieval_service = RetrievalService()
-generation_service = GenerationService()
-logging_service = LoggingService()
-embedding_service = EmbeddingService()
-vector_store = VectorStore()
-
-# Request/Response models
-class QueryRequest(BaseModel):
-    query: str
-    user_id: str = None
-
-class QueryResponse(BaseModel):
-    response: str
-    confidence_score: float
-    sources: List[Dict]
-
-class ContentIngestionRequest(BaseModel):
-    title: str
-    content: str
-    chapter: str = None
-    section: str = None
-    page_number: int = None
-
-# Configure logging
-logger = logging.getLogger(__name__)
-
-@router.post("/query", response_model=QueryResponse)
-async def query_chatbot(request: QueryRequest):
+@router.post("/query", response_model=ChatbotResponse)
+async def query_chatbot(query: UserQuery):
     """
-    Query the RAG chatbot and get a response
+    Process a user query:
+    1. Embed query
+    2. Retrieve relevant content
+    3. Generate answer
     """
     try:
-        logger.info(f"Received query from user {request.user_id}: {request.query}")
-
-        # Retrieve relevant content based on the query
-        relevant_content = retrieval_service.retrieve_relevant_content(
-            query=request.query,
-            top_k=5
-        )
-
-        # Generate a response based on the retrieved content
-        response_text = generation_service.generate_response(
-            question=request.query,
-            context=relevant_content
-        )
-
-        # Calculate confidence score based on the retrieved content
-        confidence_score = generation_service.calculate_confidence(
-            context=relevant_content,
-            question=request.query
-        )
-
-        # Prepare sources for the response
-        sources = [
-            {
-                "id": item["id"],
-                "title": item["title"],
-                "chapter": item["chapter"],
-                "section": item["section"],
-                "page_number": item["page_number"],
-                "relevance_score": item["score"]
-            }
-            for item in relevant_content
-        ]
-
-        # Log the interaction
-        try:
-            query_for_log = f"Query: {request.query}"
-            response_for_log = f"Response: {response_text}"
-            logging_service.log_user_interaction(
-                user_id=request.user_id,
-                query_id="",  # In a real implementation, we'd create a proper query ID
-                response_id="",  # In a real implementation, we'd create a proper response ID
+        # Initialize services (Dependency Injection could be improved here)
+        embedding_service = EmbeddingService()
+        qdrant_client = get_qdrant_client()
+        retrieval_service = RetrievalService(qdrant_client)
+        generation_service = GenerationService()
+        
+        # 1. Embed Query
+        query_vector = embedding_service.generate_query_embedding(query.text)
+        
+        # 2. Retrieve Context
+        context_items = retrieval_service.search_similar_content(query_vector)
+        
+        if not context_items:
+            return ChatbotResponse(
+                answer="I couldn't find any relevant information in the textbook to answer your question.",
+                confidence_score=0.0,
+                sources=[]
             )
-        except Exception as log_error:
-            # Don't fail the query if logging fails
-            logger.error(f"Error logging interaction: {str(log_error)}")
+            
+        # 2.1 Calculate Aggregate Confidence
+        # Use simple max score or average. In RAG, max hit score is often a good indicator of context relevance.
+        confidence_score = max([item["score"] for item in context_items])
+        logger.info(f"Query: '{query.text}' | Best Match Score: {confidence_score}")
+        
+        # 3. Generate Answer (Only if confidence is reasonable)
+        if confidence_score < 0.15: # Threshold lowered from 0.25 to 0.15 to better capture relevant chapters
+             return ChatbotResponse(
+                answer="I'm not confident enough in the available textbook sections to answer that accurately. I found some related content but it might not be a direct match. Could you rephrase your question or ask about a specific chapter like Chapter 1, Robotics, or Control?",
+                confidence_score=confidence_score,
+                sources=[item["metadata"] for item in context_items]
+            )
 
-        return QueryResponse(
-            response=response_text,
+        answer = generation_service.generate_response(query.text, context_items)
+        
+        # Construct Response
+        sources = []
+        for item in context_items:
+            meta = item["metadata"]
+            # Combine chapter and section for the frontend 'title'
+            meta.title = f"{meta.chapter} - {meta.section}"
+            sources.append(meta)
+
+        response = ChatbotResponse(
+            answer=answer,
             confidence_score=confidence_score,
             sources=sources
         )
+        
+        return response
+        
     except Exception as e:
-        logger.error(f"Error processing query: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error processing query: {str(e)}")
-
-
-@router.post("/ingest")
-async def ingest_content(content: ContentIngestionRequest):
-    """
-    Ingest textbook content into the vector store
-    """
-    try:
-        # In a real implementation, we would process the content more thoroughly
-        # For now, we'll add it directly to the vector store
-        import uuid
-        content_id = str(uuid.uuid4())
-
-        # Create metadata dictionary
-        metadata = {
-            "title": content.title,
-            "chapter": content.chapter,
-            "section": content.section,
-            "page_number": content.page_number,
-            "created_at": "TODO",  # Would be set when stored
-            "updated_at": "TODO"   # Would be set when stored
-        }
-
-        # Add to vector store
-        success = vector_store.add_textbook_content(
-            content_id=content_id,
-            text=content.content,
-            metadata=metadata
-        )
-
-        if success:
-            logger.info(f"Successfully ingested content '{content.title}' with ID {content_id}")
-            return {"message": "Content successfully ingested", "content_id": content_id}
-        else:
-            logger.error(f"Failed to ingest content '{content.title}'")
-            raise HTTPException(status_code=500, detail="Failed to ingest content")
-    except Exception as e:
-        logger.error(f"Error ingesting content: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error ingesting content: {str(e)}")
-
-
-@router.get("/health")
-async def health_check():
-    """
-    Health check endpoint
-    """
-    try:
-        # Validate configuration
-        is_valid, message = Config.validate_config()
-        if not is_valid:
-            logger.warning(f"Configuration validation failed: {message}")
-            return {"status": "unhealthy", "details": message}
-
-        # In a real implementation, we would check the status of external services
-        # such as Qdrant and OpenAI API
-
-        return {"status": "healthy", "service": "RAG Chatbot API"}
-    except Exception as e:
-        logger.error(f"Health check failed: {str(e)}")
-        return {"status": "unhealthy", "error": str(e)}
-
-
-# Additional endpoints can be added as needed
+        logger.error(f"Error processing query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
