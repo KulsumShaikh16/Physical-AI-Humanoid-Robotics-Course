@@ -1,0 +1,16 @@
+
+__pycache__
+.venv
+.env
+.git
+.gitignore
+node_modules
+my-website
+tests
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.coverage
+htmlcov
+.DS_Store

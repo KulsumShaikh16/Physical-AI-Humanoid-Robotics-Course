@@ -1,4 +1,23 @@
 {
+  "name": "ai-textbook",
+  "version": "1.0.0",
+  "description": "An innovative educational platform that leverages artificial intelligence to create personalized learning experiences for AI and machine learning education.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ai",
+    "education",
+    "machine-learning",
+    "reinforcement-learning",
+    "adaptive-learning"
+  ],
+  "author": "UNI-TECH",
+  "license": "MIT",
   "dependencies": {
     "context7": "^1.0.3"
   }
