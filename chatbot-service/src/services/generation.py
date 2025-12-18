@@ -41,4 +41,4 @@ Answer:"""
             
         except Exception as e:
             logger.error(f"Generation failed: {e}")
-            return "I'm sorry, I encountered an error while generating the response."
+            return f"Error: {str(e)}"
