@@ -3,65 +3,60 @@ from typing import List
 import logging
 from pydantic import BaseModel
 
-from src.services.embedding_service import EmbeddingService
-from src.database.vector_store import VectorStore
-from src.utils.config import Config
+from src.services.embedding import EmbeddingService
+from src.services.storage import StorageService
+from src.db.qdrant_client import get_qdrant_client
+from src.db.neon_client import get_db
+from src.models.domain import TextbookContent, SectionMetadata
 
 # Create the API router
 router = APIRouter(prefix="/ingestion", tags=["ingestion"])
 
-# Initialize services
-embedding_service = EmbeddingService()
-vector_store = VectorStore()
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Request/Response models
-class TextbookContent(BaseModel):
+class TextbookContentSchema(BaseModel):
     title: str
     content: str
     chapter: str = None
     section: str = None
     page_number: int = None
 
-# Configure logging
-logger = logging.getLogger(__name__)
-
 @router.post("/textbook-content")
-async def add_textbook_content(content: TextbookContent):
+async def add_textbook_content(content: TextbookContentSchema):
     """
     Add textbook content to the vector store
     """
     try:
-        import uuid
+        embedding_service = EmbeddingService()
+        qdrant = get_qdrant_client()
+        db = next(get_db())
+        storage_service = StorageService(qdrant, db)
         
-        content_id = str(uuid.uuid4())
+        # 1. Generate Embedding
+        embedding = embedding_service.generate_embeddings([content.content])[0]
         
-        # Create metadata dictionary
-        metadata = {
-            "title": content.title,
-            "chapter": content.chapter,
-            "section": content.section,
-            "page_number": content.page_number,
-        }
-        
-        # Add to vector store
-        success = vector_store.add_textbook_content(
-            content_id=content_id,
+        # 2. Prepare Domain Object
+        textbook_doc = TextbookContent(
             text=content.content,
-            metadata=metadata
+            embedding=embedding,
+            metadata=SectionMetadata(
+                title=content.title,
+                chapter=content.chapter,
+                section=content.section,
+                page_number=content.page_number
+            )
         )
         
-        if success:
-            logger.info(f"Successfully added textbook content '{content.title}' with ID {content_id}")
-            return {
-                "message": "Textbook content successfully added", 
-                "content_id": content_id
-            }
-        else:
-            logger.error(f"Failed to add textbook content '{content.title}'")
-            raise HTTPException(status_code=500, detail="Failed to add textbook content")
+        # 3. Store
+        storage_service.store_content([textbook_doc])
+        
+        return {"message": "Textbook content successfully added"}
+        
     except Exception as e:
         logger.error(f"Error adding textbook content: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error adding textbook content: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/upload-pdf")
@@ -70,66 +65,52 @@ async def upload_pdf(file: UploadFile = File(...)):
     Upload a PDF file and process it into the vector store
     """
     try:
-        import uuid
-        from PyPDF2 import PdfReader
+        import PyPDF2
+        import io
         
-        # Check file type
         if not file.content_type == "application/pdf":
             raise HTTPException(status_code=400, detail="Only PDF files are allowed")
         
         # Read the PDF content
-        pdf_reader = PdfReader(file.file)
-        content = ""
+        pdf_data = await file.read()
+        pdf_reader = PyPDF2.PdfReader(io.BytesIO(pdf_data))
+        text = ""
         for page in pdf_reader.pages:
-            content += page.extract_text()
+            text += page.extract_text() or ""
         
-        if not content.strip():
+        if not text.strip():
             raise HTTPException(status_code=400, detail="No text content found in PDF")
         
-        # Create a content ID
-        content_id = str(uuid.uuid4())
+        embedding_service = EmbeddingService()
+        qdrant = get_qdrant_client()
+        db = next(get_db())
+        storage_service = StorageService(qdrant, db)
         
-        # Add to vector store
-        success = vector_store.add_textbook_content(
-            content_id=content_id,
-            text=content,
-            metadata={
-                "title": file.filename,
-                "file_type": "pdf",
-                "original_filename": file.filename
-            }
-        )
+        # Simplify chunking (for real RAG, use a better splitter)
+        chunks = [text[i:i+1000] for i in range(0, len(text), 1000)]
+        embeddings = embedding_service.generate_embeddings(chunks)
         
-        if success:
-            logger.info(f"Successfully uploaded and processed PDF '{file.filename}' with ID {content_id}")
-            return {
-                "message": f"PDF '{file.filename}' successfully uploaded and processed", 
-                "content_id": content_id
-            }
-        else:
-            logger.error(f"Failed to process PDF '{file.filename}'")
-            raise HTTPException(status_code=500, detail="Failed to process PDF")
-    except HTTPException:
-        # Re-raise HTTP exceptions as they are
-        raise
+        records = []
+        for i, (chunk, emb) in enumerate(zip(chunks, embeddings)):
+            records.append(TextbookContent(
+                text=chunk,
+                embedding=emb,
+                metadata=SectionMetadata(
+                    title=f"{file.filename} - Part {i+1}",
+                    chapter="Uploaded PDF",
+                    section=file.filename,
+                    page_number=0
+                )
+            ))
+            
+        storage_service.store_content(records)
+        
+        return {"message": f"Successfully processed PDF with {len(records)} chunks"}
+        
     except Exception as e:
         logger.error(f"Error uploading PDF: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error uploading PDF: {str(e)}")
-
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/health")
 async def health_check():
-    """
-    Health check endpoint for the ingestion service
-    """
-    try:
-        # Validate configuration
-        is_valid, message = Config.validate_config()
-        if not is_valid:
-            logger.warning(f"Configuration validation failed: {message}")
-            return {"status": "unhealthy", "details": message}
-        
-        return {"status": "healthy", "service": "RAG Ingestion API"}
-    except Exception as e:
-        logger.error(f"Health check failed: {str(e)}")
-        return {"status": "unhealthy", "error": str(e)}
+    return {"status": "healthy", "service": "Ingestion API"}
