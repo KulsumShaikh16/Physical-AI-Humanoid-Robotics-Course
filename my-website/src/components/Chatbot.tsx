@@ -63,7 +63,7 @@ const Chatbot: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: userMessage.text }), // Changed from query to text
+        body: JSON.stringify({ text: userMessage.text }),
       });
 
       if (!response.ok) {
@@ -72,27 +72,75 @@ const Chatbot: React.FC = () => {
         throw new Error(errorDetail || `Server error: ${response.status}`);
       }
 
-      const data = await response.json();
-
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: data.answer, // Changed from data.response to data.answer
+      // Initialize an empty bot message
+      const botMessageId = (Date.now() + 1).toString();
+      const initialBotMessage: Message = {
+        id: botMessageId,
+        text: '',
         sender: 'bot',
         timestamp: new Date(),
-        sources: data.sources
+        sources: []
       };
 
-      setMessages((prev) => [...prev, botMessage]);
+      setMessages((prev) => [...prev, initialBotMessage]);
+      setIsLoading(false); // Stop loading indicator immediately as we start streaming
+
+      // Stream reader
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) throw new Error("No reader available");
+
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        buffer += chunk;
+
+        const lines = buffer.split('\n');
+        // Process all complete lines
+        buffer = lines.pop() || ''; // Keep the incomplete line in buffer
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const data = JSON.parse(line);
+
+            if (data.type === 'metadata') {
+              setMessages((prev) =>
+                prev.map(msg =>
+                  msg.id === botMessageId
+                    ? { ...msg, sources: data.sources }
+                    : msg
+                )
+              );
+            } else if (data.type === 'content') {
+              setMessages((prev) =>
+                prev.map(msg =>
+                  msg.id === botMessageId
+                    ? { ...msg, text: msg.text + data.chunk }
+                    : msg
+                )
+              );
+            }
+          } catch (e) {
+            console.warn("Failed to parse chunk:", line, e);
+          }
+        }
+      }
+
     } catch (error) {
       console.error('Error querying chatbot:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: `Error: ${error instanceof Error ? error.message : JSON.stringify(error)}`, // Improved error stringification
+        text: `Error: ${error instanceof Error ? error.message : JSON.stringify(error)}`,
         sender: 'bot',
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
-    } finally {
       setIsLoading(false);
     }
   };
