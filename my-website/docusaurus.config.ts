@@ -19,7 +19,8 @@ const config: Config = {
 
   customFields: {
     // Put your custom environment here
-    backendUrl: 'https://physical-ai-humanoid-robotics-course-oak1.onrender.com',
+    // Using local backend instead of deployed Render backend
+    backendUrl: 'http://localhost:8000',
   },
 
   // Set the production url of your site here

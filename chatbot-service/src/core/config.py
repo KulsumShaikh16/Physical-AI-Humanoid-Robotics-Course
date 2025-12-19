@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     
     # Model Config
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2" # Fallback or specific model
-    GENERATION_MODEL: str = "gemini-pro"
+    GENERATION_MODEL: str = "gemini-1.5-flash"
     
     model_config = SettingsConfigDict(
         env_file=".env",

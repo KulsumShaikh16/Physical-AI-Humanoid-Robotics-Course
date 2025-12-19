@@ -40,5 +40,14 @@ Answer:"""
             return response.text
             
         except Exception as e:
-            logger.error(f"Generation failed: {e}")
-            return f"Error: {str(e)}"
+            error_msg = str(e)
+            logger.error(f"Generation failed: {error_msg}")
+            
+            if any(indicator in error_msg.lower() for indicator in ["429", "quota", "exhausted", "limit"]):
+                return (
+                    "I've reached the current API quota limit for answering questions. "
+                    "If you are using 'gemini-2.0-flash' in your .env, please try switching to 'gemini-1.5-flash' "
+                    "which has a more stable free tier quota. Otherwise, please try again later."
+                )
+            
+            return f"The generation service encountered an error: {error_msg.split(':', 1)[-1].strip() if ':' in error_msg else error_msg}"
